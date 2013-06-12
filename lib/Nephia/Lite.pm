@@ -171,11 +171,12 @@ Nephia::Lite - mini and lite WAF. one file, once write, quickly render!
 =head1 DESCRIPTION
 
 Nephia::Lite is minimum set of Nephia.
-But use Nephia feature and Plugins.
+However, usable Nephia's feature and useful plugins.
 
 =head1 SEE ALSO
 
 L<Nephia>
+
 L<Text::MicroTemplate>
 
 =head1 LICENSE

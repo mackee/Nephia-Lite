@@ -24,11 +24,12 @@ Nephia::Lite - mini and lite WAF. one file, once write, quickly render!
 # DESCRIPTION
 
 Nephia::Lite is minimum set of Nephia.
-But use Nephia feature and Plugins.
+However, usable Nephia's feature and useful plugins.
 
 # SEE ALSO
 
 [Nephia](http://search.cpan.org/perldoc?Nephia)
+
 [Text::MicroTemplate](http://search.cpan.org/perldoc?Text::MicroTemplate)
 
 # LICENSE
