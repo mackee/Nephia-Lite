@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /.build/
 /_build/
 /Build
@@ -24,3 +25,24 @@ cover_db/
 MYMETA.*
 
 /Nephia-Lite-*
+=======
+blib/
+.build/
+_build/
+cover_db/
+inc/
+Build
+!Build/
+Build.bat
+.last_cover_stats
+Makefile
+Makefile.old
+MANIFEST.bak
+META.yml
+MYMETA.yml
+nytprof.out
+pm_to_blib
+>>>>>>> 4abcac5b242acc1aa55bc854b18eeaec4c18ecfe
+/.build
+/_build_params
+!META.json

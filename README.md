@@ -1,6 +1,6 @@
 # NAME
 
-Nephia::Lite - It's new $module
+Nephia::Lite - mini and lite WAF.
 
 # SYNOPSIS
 
@@ -12,11 +12,11 @@ Nephia::Lite is ...
 
 # LICENSE
 
-Copyright (C) taniwaki-makoto.
+Copyright (C) macopy.
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 # AUTHOR
 
-taniwaki-makoto <taniwaki-makoto@kayac.com>
+macopy <macopy \[attttttt\] cpan.com>

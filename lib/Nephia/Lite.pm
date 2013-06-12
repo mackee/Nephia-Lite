@@ -8,9 +8,9 @@ use Data::Section::Simple;
 use Sub::Prototype;
 use Exporter;
 
-*Nephia::export = \&Exporter::export;
-
 our $VERSION = "0.01";
+
+*Nephia::export = \&Exporter::export;
 
 sub import {
     my $caller = caller;
@@ -130,7 +130,7 @@ __END__
 
 =head1 NAME
 
-Nephia::Lite - It's new $module
+Nephia::Lite - mini and lite WAF.
 
 =head1 SYNOPSIS
 
@@ -142,14 +142,14 @@ Nephia::Lite is ...
 
 =head1 LICENSE
 
-Copyright (C) taniwaki-makoto.
+Copyright (C) macopy.
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 =head1 AUTHOR
 
-taniwaki-makoto E<lt>taniwaki-makoto@kayac.comE<gt>
+macopy E<lt>macopy [attttttt] cpan.comE<gt>
 
 =cut
 
