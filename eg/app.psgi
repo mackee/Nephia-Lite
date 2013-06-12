@@ -1,18 +1,15 @@
 use Nephia::Lite;
 
 to_app {
-    my $req = req;
-
     return {
-        template => 'DATA',
-        title => 'fugu',
+        title => 'fugu\'s room',
     };
 };
 
 __DATA__
 
 <html>
-<head><title>aaaa</title></head>
+<head><title><?= $title ?></title></head>
 <body>
 <h1>Welcome to <?= $title ?></h1>
 </body>

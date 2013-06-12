@@ -1,10 +1,10 @@
 {
-   "abstract" : "mini and lite WAF.",
+   "abstract" : "mini and lite WAF. one file, once write, quickly render!",
    "author" : [
-      "macopy <macopy [attttttt] cpan.com>"
+      "macopy <macopy[attttttt]cpan.com>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Minilla/v0.5.0, CPAN::Meta::Converter version 2.130880",
+   "generated_by" : "Minilla/v0.4.9, CPAN::Meta::Converter version 2.131560",
    "license" : [
       "perl_5"
    ],
@@ -67,6 +67,8 @@
    },
    "version" : "0.01",
    "x_contributors" : [
-      "mackee <macopy123 [atttttttttt] gmail.com>"
+      "mackee <macopy123@gmail.com>",
+      "mackee <macopy123 [atttttttttt] gmail.com>",
+      "mackee <macopy123[attttt]gmai.com>"
    ]
 }

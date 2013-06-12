@@ -5,21 +5,19 @@ use warnings;
 
 use parent qw/Nephia/;
 use Data::Section::Simple;
-use Sub::Prototype;
 use Exporter;
 
 our $VERSION = "0.01";
-
-*Nephia::export = \&Exporter::export;
 
 sub import {
     my $caller = caller;
     {
         no strict 'refs';
+        for my $func (grep { $_ =~ /^[a-z]/ && $_ ne 'import' } keys %{'Nephia::'}) {
+            *{$caller.'::'.$func} = *{'Nephia::'.$func};
+        }
         *{$caller.'::to_app'} = \&to_app;
     }
-
-    return Exporter::export_to_level('Nephia', 1, @_);
 }
 
 sub to_app(&@) {
@@ -28,13 +26,19 @@ sub to_app(&@) {
 
     {
         no strict 'refs';
-        &{$caller."::path"} ('/' => $coderef);
+        &{$caller."::path"} (
+            '/' => sub {
+                my $res = $coderef->(@_);
+                $res->{template} ||= 'DATA';
+                return $res;
+            }
+        );
     }
 
     my $app = $caller->run();
 
-    if (!exists $Nephia::CONFIG->{view}) {
-        $Nephia::VIEW = Nephia::Lite::View->new(package => $caller);
+    if (!exists $Nephia::Core::CONFIG->{view}) {
+        $Nephia::Core::VIEW = Nephia::Lite::View->new(package => $caller);
     }
 
     return $app;
@@ -103,6 +107,19 @@ package Text::MicroTemplate::DataSection::ForNephia {
         #}
 
         if (my $data = $self->{template}) {
+            my @splited_data = split /\$/, $data;
+
+            shift @splited_data;
+            my @already_vars;
+            for my $segment (@splited_data) {
+                next if $segment =~ /_/;
+                my @words = split /\ /, $segment;
+                my $var_name = shift @words;
+                next if grep { $var_name eq $_ } @already_vars;
+                push @already_vars, $var_name;
+                $data = "? my \$$var_name = \$_[0]->{$var_name};\n".$data;
+            }
+
             $self->parse(decode_utf8 $data);
 
             local $Text::MicroTemplate::_mt_setter = 'my $_mt = shift;';
@@ -130,15 +147,36 @@ __END__
 
 =head1 NAME
 
-Nephia::Lite - mini and lite WAF.
+Nephia::Lite - mini and lite WAF. one file, once write, quickly render!
 
 =head1 SYNOPSIS
 
     use Nephia::Lite;
 
+    to_app {
+        return {
+            title => 'sample'
+        }
+    };
+    __DATA__
+
+    <html>
+    <head>
+    <title><?= $title ?></title>
+    <body>
+    <h1>Hello, <?= $title ?></h1>
+    </body>
+    </html>
+
 =head1 DESCRIPTION
 
-Nephia::Lite is ...
+Nephia::Lite is minimum set of Nephia.
+But use Nephia feature and Plugins.
+
+=head1 SEE ALSO
+
+L<Nephia>
+L<Text::MicroTemplate>
 
 =head1 LICENSE
 
@@ -149,7 +187,7 @@ it under the same terms as Perl itself.
 
 =head1 AUTHOR
 
-macopy E<lt>macopy [attttttt] cpan.comE<gt>
+macopy E<lt>macopy[attttttt]cpan.comE<gt>
 
 =cut
 

@@ -1,14 +1,35 @@
 # NAME
 
-Nephia::Lite - mini and lite WAF.
+Nephia::Lite - mini and lite WAF. one file, once write, quickly render!
 
 # SYNOPSIS
 
     use Nephia::Lite;
 
+    to_app {
+        return {
+            title => 'sample'
+        }
+    };
+    __DATA__
+
+    <html>
+    <head>
+    <title><?= $title ?></title>
+    <body>
+    <h1>Hello, <?= $title ?></h1>
+    </body>
+    </html>
+
 # DESCRIPTION
 
-Nephia::Lite is ...
+Nephia::Lite is minimum set of Nephia.
+But use Nephia feature and Plugins.
+
+# SEE ALSO
+
+[Nephia](http://search.cpan.org/perldoc?Nephia)
+[Text::MicroTemplate](http://search.cpan.org/perldoc?Text::MicroTemplate)
 
 # LICENSE
 
@@ -19,4 +40,4 @@ it under the same terms as Perl itself.
 
 # AUTHOR
 
-macopy <macopy \[attttttt\] cpan.com>
+macopy <macopy\[attttttt\]cpan.com>
