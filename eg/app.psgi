@@ -6,12 +6,4 @@ to_app {
     };
 };
 
-__DATA__
-
-<html>
-<head><title><?= $title ?></title></head>
-<body>
-<h1>Welcome to <?= $title ?></h1>
-</body>
-</html>
 

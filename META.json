@@ -4,7 +4,7 @@
       "macopy <macopy[attttttt]cpan.com>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Minilla/v0.4.9, CPAN::Meta::Converter version 2.131560",
+   "generated_by" : "Minilla/v0.5.0, CPAN::Meta::Converter version 2.130880",
    "license" : [
       "perl_5"
    ],
@@ -42,8 +42,10 @@
       },
       "runtime" : {
          "requires" : {
-            "Nephia" : "0.10",
-            "Text::MicroTemplate" : "0",
+            "Carp" : "0",
+            "Encode" : "0",
+            "Nephia" : "0.11",
+            "Text::MicroTemplate" : "0.19",
             "perl" : "5.008005"
          }
       },

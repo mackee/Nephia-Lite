@@ -23,12 +23,14 @@ sub to_app(&@) {
     my $coderef = shift;
     my $caller = caller;
 
+    my $content = Nephia::Lite::Util::DataSection->read_section_data($caller);
+
     {
         no strict 'refs';
         &{$caller."::path"} (
             '/' => sub {
                 my $res = $coderef->(@_);
-                $res->{template} ||= 'DATA';
+                $res->{template} ||= 'DATA' if $content;
                 return $res;
             }
         );
@@ -37,10 +39,33 @@ sub to_app(&@) {
     my $app = $caller->run();
 
     if (!exists $Nephia::Core::CONFIG->{view}) {
-        $Nephia::Core::VIEW = Nephia::Lite::View->new(package => $caller);
+        $Nephia::Core::VIEW =
+            Nephia::Lite::View->new(
+                package => $caller,
+                '_content' => $content
+            );
     }
 
     return $app;
+}
+
+package Nephia::Lite::Util::DataSection;
+
+sub read_section_data {
+    my $class = shift;
+    my $pkg = shift;
+    my $content;
+    {
+        no strict 'refs';
+        my $d = \*{$pkg.'::DATA'};
+        {
+            no warnings 'unopened';
+            $content = join '', <$d>;
+        }
+        $content =~ s/^.*\n__DATA__\n/\n/s;
+        $content =~ s/__END__\n.*$/\n/s;
+    }
+    return $content;
 }
 
 package Nephia::Lite::View;
@@ -61,6 +86,7 @@ package Nephia::Lite::View::MicroTemplate;
 
 sub new {
     my ($class, %opts) = @_;
+
     my $mt = Text::MicroTemplate::DataSection::ForNephia->new(%opts);
     bless { mt => $mt }, $class;
 }
@@ -78,23 +104,9 @@ use Carp;
 
 sub new {
     my $self = shift->SUPER::new(@_);
-    $self->{package} ||= scalar caller;
-    $self->{template} = $self->_read_section_data();
+    my $pkg = $self->{package} ||= scalar caller;
 
     $self;
-}
-
-sub _read_section_data {
-    my $self = shift;
-    my $content;
-    {
-        no strict 'refs';
-        my $d = \*{$self->{package}.'::DATA'};
-        $content = join '', <$d>;
-        $content =~ s/^.*\n__DATA__\n/\n/s;
-        $content =~ s/__END__\n.*$/\n/s;
-    }
-    return $content;
 }
 
 
@@ -105,7 +117,7 @@ sub build_file {
         return $e;
     }
 
-    if (my $data = $self->{template}) {
+    if (my $data = $self->{_content}) {
         my @splited_data = split /\$/, $data;
 
         shift @splited_data;
@@ -149,6 +161,8 @@ Nephia::Lite - mini and lite WAF. one file, once write, quickly render!
 
 =head1 SYNOPSIS
 
+in app.psgi :
+
     use Nephia::Lite;
 
     to_app {
@@ -167,11 +181,53 @@ Nephia::Lite - mini and lite WAF. one file, once write, quickly render!
     </body>
     </html>
 
+and plackup
+
+    plackup app.psgi
+
+Open "http://localhost:5000" with your favorite browser.
+
+Rendered Dynamic Pages in your display!
+
 =head1 DESCRIPTION
 
 Nephia::Lite is minimum set of Nephia.
 
 However, usable Nephia's feature and useful plugins.
+
+=head2 Rendering page with template
+
+Nephia::Lite used L<Text::MicroTemplate>.
+
+Write after __DATA__ in app.psgi.
+
+=head2 JSON Output
+
+Don't write __DATA__ and templates.
+
+Nephia::Lite automatically recognize to you want to JSON.
+
+    use Nephia::Lite;
+
+    to_app {
+        return {
+            message => 'Hello! This is a My JSON!!!'
+        };
+    };
+
+Output
+
+    {
+        'message' : 'Hello! This is a My JSON!!!'
+    }
+
+=head2 Other features
+
+Use can Nephia's features and plugins.
+
+Ex. redirect, header, validate(L<Nephia::Plugin::Data::Validater>) and other DSLs.
+
+But cannot use Nephia Views yet.
 
 =head1 SEE ALSO
 
