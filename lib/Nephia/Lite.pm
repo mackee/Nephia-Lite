@@ -4,7 +4,6 @@ use strict;
 use warnings;
 
 use parent qw/Nephia/;
-use Data::Section::Simple;
 use Exporter;
 
 our $VERSION = "0.01";
