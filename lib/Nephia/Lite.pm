@@ -3,48 +3,57 @@ use 5.008005;
 use strict;
 use warnings;
 
-use parent qw/Nephia/;
+use Nephia ();
 use Exporter;
 
 our $VERSION = "0.01";
+our $VIEW;
 
 sub import {
     my $caller = caller;
+
     {
         no strict 'refs';
-        for my $func (grep { $_ =~ /^[a-z]/ && $_ ne 'import' } keys %{'Nephia::'}) {
+        for my $func (grep { $_ =~ /^[a-z]/ && $_ ne 'import' && $_ ne 'run' } keys %{'Nephia::'}) {
             *{$caller.'::'.$func} = *{'Nephia::'.$func};
         }
-        *{$caller.'::to_app'} = \&to_app;
+        *{$caller.'::_run'} = *{'Nephia::run'};
+        *{$caller.'::run'} = \&run;
     }
 }
 
-sub to_app(&@) {
+sub run(&@) {
     my $coderef = shift;
     my $caller = caller;
 
     my $content = Nephia::Lite::Util::DataSection->read_section_data($caller);
 
+    $VIEW ||=
+        Nephia::Lite::View->new(
+            package => $caller,
+            '_content' => $content
+        );
+
     {
         no strict 'refs';
-        &{$caller."::path"} (
+        &Nephia::Core::_path (
             '/' => sub {
                 my $res = $coderef->(@_);
-                $res->{template} ||= 'DATA' if $content;
+                if ($content) {
+                    my $charset = $res->{charset} || $Nephia::Core::CHARSET;
+                    $res = &{$caller.'::res'} (sub {
+                        content_type("text/html; charset=$charset");
+                        body(Encode::encode($charset,$VIEW->render('DATA', $res)));
+                    });
+                }
                 return $res;
-            }
+            },
+            undef,
+            $caller
         );
     }
 
-    my $app = $caller->run();
-
-    if (!exists $Nephia::Core::CONFIG->{view}) {
-        $Nephia::Core::VIEW =
-            Nephia::Lite::View->new(
-                package => $caller,
-                '_content' => $content
-            );
-    }
+    my $app = $caller->_run();
 
     return $app;
 }
@@ -165,7 +174,7 @@ in app.psgi :
 
     use Nephia::Lite;
 
-    to_app {
+    run {
         return {
             title => 'sample'
         }
@@ -197,7 +206,7 @@ However, usable Nephia's feature and useful plugins.
 
 =head2 Rendering page with template
 
-Nephia::Lite used L<Text::MicroTemplate>.
+Nephia::Lite use L<Text::MicroTemplate>.
 
 Write after __DATA__ in app.psgi.
 
@@ -209,7 +218,7 @@ Nephia::Lite automatically recognize to you want to JSON.
 
     use Nephia::Lite;
 
-    to_app {
+    run {
         return {
             message => 'Hello! This is a My JSON!!!'
         };
@@ -220,6 +229,47 @@ Output
     {
         'message' : 'Hello! This is a My JSON!!!'
     }
+
+=head2 Submapped Nephia::Lite application on Nephia
+
+Your Nephia app can wrap Nephia::Lite app.
+
+app.psgi
+
+    use Nephia;
+
+    path '/' => sub {
+        location => 'index'
+    };
+
+    path '/subapp' => 'LiteApp';
+
+LiteApp.pm
+
+    package LiteApp;
+    use Nephia::Lite;
+
+    run {
+        return {
+            title => 'a little app'
+        };
+    };
+
+    1;
+
+    __DATA__
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title><?= $title ?></title>
+    </head>
+    <body>
+      <h1><?= $title ?></h1>
+    </body>
+    </html>
+
+LiteApp's root mapped to '/subapp'
 
 =head2 Other features
 

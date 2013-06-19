@@ -8,7 +8,7 @@ in app.psgi :
 
     use Nephia::Lite;
 
-    to_app {
+    run {
         return {
             title => 'sample'
         }
@@ -40,7 +40,7 @@ However, usable Nephia's feature and useful plugins.
 
 ## Rendering page with template
 
-Nephia::Lite used [Text::MicroTemplate](http://search.cpan.org/perldoc?Text::MicroTemplate).
+Nephia::Lite use [Text::MicroTemplate](http://search.cpan.org/perldoc?Text::MicroTemplate).
 
 Write after \_\_DATA\_\_ in app.psgi.
 
@@ -52,7 +52,7 @@ Nephia::Lite automatically recognize to you want to JSON.
 
     use Nephia::Lite;
 
-    to_app {
+    run {
         return {
             message => 'Hello! This is a My JSON!!!'
         };
@@ -63,6 +63,47 @@ Output
     {
         'message' : 'Hello! This is a My JSON!!!'
     }
+
+## Submapped Nephia::Lite application on Nephia
+
+Your Nephia app can wrap Nephia::Lite app.
+
+app.psgi
+
+    use Nephia;
+
+    path '/' => sub {
+        location => 'index'
+    };
+
+    path '/subapp' => 'LiteApp';
+
+LiteApp.pm
+
+    package LiteApp;
+    use Nephia::Lite;
+
+    run {
+        return {
+            title => 'a little app'
+        };
+    };
+
+    1;
+
+    __DATA__
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title><?= $title ?></title>
+    </head>
+    <body>
+      <h1><?= $title ?></h1>
+    </body>
+    </html>
+
+LiteApp's root mapped to '/subapp'
 
 ## Other features
 
