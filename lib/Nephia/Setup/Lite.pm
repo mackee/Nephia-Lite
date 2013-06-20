@@ -116,7 +116,7 @@ __DATA__
     ### app.psgi
     use Nephia::Lite;
 
-    # <a href="/data">JSON responce sample</a>
+    # JSON responce sample
     run {
         my $req = shift;
 
