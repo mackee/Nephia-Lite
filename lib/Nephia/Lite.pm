@@ -2,6 +2,7 @@ package Nephia::Lite;
 use 5.008005;
 use strict;
 use warnings;
+use utf8;
 
 use Nephia ();
 use Exporter;
@@ -26,26 +27,37 @@ sub run(&@) {
     my $coderef = shift;
     my $caller = caller;
 
-    my $content = Nephia::Lite::Util::DataSection->read_section_data($caller);
-
-    $VIEW ||=
-        Nephia::Lite::View->new(
-            package => $caller,
-            '_content' => $content
-        );
 
     {
         no strict 'refs';
+        my $content = Nephia::Lite::Util::DataSection->read_section_data($caller);
+        ${$caller.'::VIEW'} ||=
+            Nephia::Lite::View->new(
+                package => $caller,
+                '_content' => $content
+            );
+        my $view = ${$caller.'::VIEW'};
+
         &Nephia::Core::_path (
             '/' => sub {
+                my $req = $_[0];
+                my $param = $_[1];
+
+                no strict qw[ refs subs ];
+                no warnings qw[ redefine ];
+                local *{$caller."::req"} = sub{ $req };
+                local *{$caller."::param"} = sub{ $param };
+
                 my $res = $coderef->(@_);
+
                 if ($content) {
                     my $charset = $res->{charset} || $Nephia::Core::CHARSET;
                     $res = &{$caller.'::res'} (sub {
                         content_type("text/html; charset=$charset");
-                        body(Encode::encode($charset,$VIEW->render('DATA', $res)));
+                        body(Encode::encode($charset,$view->render('DATA', $res)));
                     });
                 }
+
                 return $res;
             },
             undef,
@@ -58,7 +70,8 @@ sub run(&@) {
     return $app;
 }
 
-package Nephia::Lite::Util::DataSection;
+package
+    Nephia::Lite::Util::DataSection;
 
 sub read_section_data {
     my $class = shift;
@@ -77,7 +90,8 @@ sub read_section_data {
     return $content;
 }
 
-package Nephia::Lite::View;
+package
+    Nephia::Lite::View;
 
 use Nephia::ClassLoader;
 
@@ -91,7 +105,8 @@ sub new {
     return $subclass->new(%opts);
 }
 
-package Nephia::Lite::View::MicroTemplate;
+package
+    Nephia::Lite::View::MicroTemplate;
 
 sub new {
     my ($class, %opts) = @_;
@@ -105,7 +120,8 @@ sub render {
     $self->{mt}->render_file(@params);
 }
 
-package Text::MicroTemplate::DataSection::ForNephia;
+package
+    Text::MicroTemplate::DataSection::ForNephia;
 
 use parent qw/Text::MicroTemplate::File/;
 use Encode;
@@ -133,7 +149,7 @@ sub build_file {
         my @already_vars;
         for my $segment (@splited_data) {
             next if $segment =~ /_/;
-            my @words = split /\ /, $segment;
+            my @words = split /(?![a-zA-Z0-9_])/, $segment;
             my $var_name = shift @words;
             next if grep { $var_name eq $_ } @already_vars;
             push @already_vars, $var_name;
@@ -275,7 +291,7 @@ LiteApp's root mapped to '/subapp'
 
 Use can Nephia's features and plugins.
 
-Ex. redirect, header, validate(L<Nephia::Plugin::Data::Validater>) and other DSLs.
+Ex. redirect, header, validate(L<Nephia::Plugin::Data::Validator>) and other DSLs.
 
 But cannot use Nephia Views yet.
 
