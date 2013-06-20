@@ -38,6 +38,12 @@ Nephia::Lite is minimum set of Nephia.
 
 However, usable Nephia's feature and useful plugins.
 
+## Lite flavor for nephia-setup - generate skeleton
+
+    nephia-setup appname --flavor=Lite
+
+This command generate skeleton psgi file with Nephia::Lite.
+
 ## Rendering page with template
 
 Nephia::Lite use [Text::MicroTemplate](http://search.cpan.org/perldoc?Text::MicroTemplate).
@@ -109,7 +115,7 @@ LiteApp's root mapped to '/subapp'
 
 Use can Nephia's features and plugins.
 
-Ex. redirect, header, validate([Nephia::Plugin::Data::Validater](http://search.cpan.org/perldoc?Nephia::Plugin::Data::Validater)) and other DSLs.
+Ex. redirect, header, validate([Nephia::Plugin::Data::Validator](http://search.cpan.org/perldoc?Nephia::Plugin::Data::Validator)) and other DSLs.
 
 But cannot use Nephia Views yet.
 

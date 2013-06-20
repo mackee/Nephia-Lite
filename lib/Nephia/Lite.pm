@@ -8,7 +8,6 @@ use Nephia ();
 use Exporter;
 
 our $VERSION = "0.01";
-our $VIEW;
 
 sub import {
     my $caller = caller;
@@ -219,6 +218,12 @@ Rendered Dynamic Pages in your display!
 Nephia::Lite is minimum set of Nephia.
 
 However, usable Nephia's feature and useful plugins.
+
+=head2 Lite flavor for nephia-setup - generate skeleton
+
+    nephia-setup appname --flavor=Lite
+
+This command generate skeleton psgi file with Nephia::Lite.
 
 =head2 Rendering page with template
 
