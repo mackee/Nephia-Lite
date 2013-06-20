@@ -111,7 +111,7 @@ __DATA__
 
   <div class="content">
     <h2>Hello, Nephia::Lite world!</h2>
-    <p>Nephia is a mini and onefile web-application framework.</p>
+    <p>Nephia::Lite is a mini and onefile web-application framework.</p>
     <pre>
     ### app.psgi
     use Nephia::Lite;
