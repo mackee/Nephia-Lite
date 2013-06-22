@@ -2,6 +2,9 @@ Revision history for Perl extension Nephia-Lite
 
 {{$NEXT}}
 
+0.02 2013-06-22T16:30:26Z
+    - refactor render methods
+
 0.01 2013-06-20T13:33:47Z
 
     - original version
