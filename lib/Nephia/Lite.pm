@@ -10,7 +10,7 @@ use Carp;
 use Encode;
 use Text::MicroTemplate;
 
-our $VERSION = "0.02";
+our $VERSION = "0.03";
 
 sub import {
     my $caller = caller;
