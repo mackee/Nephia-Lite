@@ -6,6 +6,9 @@ use utf8;
 
 use Nephia ();
 use Exporter;
+use Carp;
+use Encode;
+use Text::MicroTemplate;
 
 our $VERSION = "0.01";
 
@@ -29,13 +32,11 @@ sub run(&@) {
 
     {
         no strict 'refs';
-        my $content = Nephia::Lite::Util::DataSection->read_section_data($caller);
-        ${$caller.'::VIEW'} ||=
-            Nephia::Lite::View->new(
-                package => $caller,
-                '_content' => $content
-            );
-        my $view = ${$caller.'::VIEW'};
+        my $renderer = ${$caller.'RENDERER'};
+        if ( !$renderer ) {
+             my $content = _read_section_data($caller);
+            $renderer = ${$caller.'::RENDERER'} ||= _build($content) if $content;
+        }
 
         &Nephia::Core::_path (
             '/' => sub {
@@ -49,11 +50,12 @@ sub run(&@) {
 
                 my $res = $coderef->(@_);
 
-                if ($content) {
+                if ($renderer) {
                     my $charset = $res->{charset} || $Nephia::Core::CHARSET;
                     $res = &{$caller.'::res'} (sub {
-                        content_type("text/html; charset=$charset");
-                        body(Encode::encode($charset,$view->render('DATA', $res)));
+                        content_type( "text/html; charset=$charset" );
+                        my $body = encode( $charset, $renderer->($res) );
+                        body( $body );
                     });
                 }
 
@@ -69,11 +71,7 @@ sub run(&@) {
     return $app;
 }
 
-package
-    Nephia::Lite::Util::DataSection;
-
-sub read_section_data {
-    my $class = shift;
+sub _read_section_data {
     my $pkg = shift;
     my $content;
     {
@@ -89,59 +87,8 @@ sub read_section_data {
     return $content;
 }
 
-package
-    Nephia::Lite::View;
-
-use Nephia::ClassLoader;
-
-sub new {
-    my ($class, %opts) = @_;
-    my $subclass = 'Nephia::Lite::View::MicroTemplate';
-    if (exists $opts{class}) {
-        $subclass = join '::', 'Nephia::View', delete $opts{class};
-        Nephia::ClassLoader->load($subclass);
-    }
-    return $subclass->new(%opts);
-}
-
-package
-    Nephia::Lite::View::MicroTemplate;
-
-sub new {
-    my ($class, %opts) = @_;
-
-    my $mt = Text::MicroTemplate::DataSection::ForNephia->new(%opts);
-    bless { mt => $mt }, $class;
-}
-
-sub render {
-    my ($self, @params) = @_;
-    $self->{mt}->render_file(@params);
-}
-
-package
-    Text::MicroTemplate::DataSection::ForNephia;
-
-use parent qw/Text::MicroTemplate::File/;
-use Encode;
-use Carp;
-
-sub new {
-    my $self = shift->SUPER::new(@_);
-    my $pkg = $self->{package} ||= scalar caller;
-
-    $self;
-}
-
-
-sub build_file {
-    my $self = shift;
-
-    if (my $e = $self->{cache}->{'DATA'}) {
-        return $e;
-    }
-
-    if (my $data = $self->{_content}) {
+sub _build {
+    if (my $data = shift) {
         my @splited_data = split /\$/, $data;
 
         shift @splited_data;
@@ -155,22 +102,12 @@ sub build_file {
             $data = "? my \$$var_name = \$_[0]->{$var_name};\n".$data;
         }
 
-        $self->parse(decode_utf8 $data);
+        my $f = Text::MicroTemplate::build_mt(decode_utf8 $data);;
 
-        local $Text::MicroTemplate::_mt_setter = 'my $_mt = shift;';
-        my $f = $self->build();
-
-        $self->{cache}->{'DATA'} = $f if $self->{use_cache};
         return $f;
     }
 
     croak "could not find template content in __DATA__ section";
-}
-
-sub render_mt {
-    my $self = __PACKAGE__->new(package => shift);
-
-    $self->render_file(@_);
 }
 
 1;
