@@ -13,6 +13,12 @@ use Text::MicroTemplate;
 our $VERSION = "0.03";
 
 sub import {
+    my ($class, %opts) = @_;
+    my @plugins = ! $opts{plugins} ? () :
+                  ref($opts{plugins}) eq 'ARRAY' ? @{$opts{plugins}} :
+                  ( $opts{plugins} )
+    ;
+
     my $caller = caller;
 
     {
@@ -20,6 +26,18 @@ sub import {
         for my $func (grep { $_ =~ /^[a-z]/ && $_ ne 'import' && $_ ne 'run' } keys %{'Nephia::'}) {
             *{$caller.'::'.$func} = *{'Nephia::'.$func};
         }
+
+        for my $plugin ( map {"Nephia::Plugin::$_"} @plugins ) {
+            require File::Spec->catfile(split/::/, $plugin.'.pm');
+            {
+                no warnings 'once'; ### suppress warning for fetching import coderef
+                $plugin->import if *{$plugin."::import"}{CODE};
+            }
+            for my $func (grep { $_ =~ /^[a-z]/ && $_ ne 'import' } keys %{$plugin.'::'}) {
+                *{$caller.'::'.$func} = *{$plugin.'::'.$func};
+            }
+        }
+
         *{$caller.'::_run'} = *{'Nephia::run'};
         *{$caller.'::run'} = \&run;
     }

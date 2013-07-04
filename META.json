@@ -44,7 +44,8 @@
          "requires" : {
             "Carp" : "0",
             "Encode" : "0",
-            "Nephia" : "0.13",
+            "Exporter" : "0",
+            "Nephia" : "0.25",
             "Text::MicroTemplate" : "0.19",
             "perl" : "5.008005"
          }
