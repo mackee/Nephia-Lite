@@ -10,7 +10,7 @@ use Carp;
 use Encode;
 use Text::MicroTemplate;
 
-our $VERSION = "0.03";
+our $VERSION = "0.04";
 
 sub import {
     my ($class, %opts) = @_;

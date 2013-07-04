@@ -2,6 +2,9 @@ Revision history for Perl extension Nephia-Lite
 
 {{$NEXT}}
 
+0.04 2013-07-04T16:12:24Z
+    - fix Nephia plugin support
+
 0.03 2013-06-22T17:05:16Z
     - change metadata
 
