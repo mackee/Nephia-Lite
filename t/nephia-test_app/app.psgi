@@ -1,9 +1,9 @@
 use strict;
 use warnings;
 use utf8;
-use Nephia::Lite;
+use Nephia plugins => [qw/Lite/];
 
-run {
+run sub {
     my $req = req;
 
     my $q = $req->param('q');
