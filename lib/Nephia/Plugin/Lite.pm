@@ -1,40 +1,63 @@
 package Nephia::Plugin::Lite;
+use 5.008005;
 use strict;
 use warnings;
 use utf8;
 
+use Carp;
+use Encode;
+use Text::MicroTemplate;
 use Nephia::DSLModifier;
-use Carp qw/croak/;
 
-around 'run' => sub {
-    my $coderef = shift;
+our $VERSION = "0.04";
+our $APP_CLASS;
+
+our @EXPORT = qw/build_template/;
+
+sub load {
+    my ($class, $app) = @_;
+    $APP_CLASS = $app;
+}
+
+around 'run' => sub (&@) {
     my $origin = pop;
-    my $caller = caller;
-    
-    my $renderer;
+
+    my $coderef = shift;
+    my $caller = caller(1);
+
     {
         no strict 'refs';
-        $renderer = ${$caller.'RENDERER'};
+        my $renderer = ${$caller.'RENDERER'};
         if ( !$renderer ) {
              my $content = _read_section_data($caller);
             $renderer = ${$caller.'::RENDERER'} ||= _build($content) if $content;
         }
+
+        $APP_CLASS->can('path')->(
+            '/' => sub {
+                my $req = $_[0];
+                my $param = $_[1];
+
+                no strict qw[ refs subs ];
+                no warnings qw[ redefine ];
+                local *{$caller."::req"} = sub{ $req };
+                local *{$caller."::param"} = sub{ $param };
+
+                my $res = $coderef->(@_);
+
+                if ($renderer) {
+                    my $charset = $res->{charset} || $Nephia::Core::CHARSET;
+                    $res = &{$caller.'::res'} (sub {
+                        content_type( "text/html; charset=$charset" );
+                        my $body = encode( $charset, $renderer->($res) );
+                        body( $body );
+                    });
+                }
+
+                return $res;
+            },
+        );
     }
-
-    origin('path')->('/', sub {
-        my $res = $coderef->(@_);
-
-        if ($renderer) {
-            my $charset = $res->{charset} || $Nephia::Core::CHARSET;
-            $res = origin('res')->(sub {
-                content_type( "text/html; charset=$charset" );
-                my $body = encode( $charset, $renderer->($res) );
-                body( $body );
-            });
-        }
-
-        return $res;
-    });
 
     my $app = $origin->($caller);
 
@@ -58,6 +81,10 @@ sub _read_section_data {
 }
 
 sub _build {
+    $APP_CLASS->can('build_template')->(@_);
+}
+
+sub build_template {
     if (my $data = shift) {
         my @splited_data = split /\$/, $data;
 
@@ -80,6 +107,59 @@ sub _build {
     croak "could not find template content in __DATA__ section";
 }
 
-
 1;
 
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+Nephia::Lite - mini and lite WAF. one file, once write, quickly render!
+
+=head1 SYNOPSIS
+
+in app.psgi :
+
+    use Nephia plugins => [qw/Lite/];
+
+    run {
+        return {
+            title => 'sample'
+        }
+    };
+
+    __DATA__
+
+    <html>
+    <head>
+    <title><?= $title ?></title>
+    <body>
+    <h1>Hello, <?= $title ?></h1>
+    </body>
+    </html>
+
+=head1 DESCRIPTION
+
+Nephia::Plugin::Lite is Nephia::Lite plugin version.
+
+=head1 SEE ALSO
+
+L<Nephia>
+
+L<Nephia::Lite>
+
+L<Text::MicroTemplate>
+
+=head1 LICENSE
+
+Copyright (C) macopy.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 AUTHOR
+
+macopy E<lt>macopy[attttttt]cpan.comE<gt>
+
+=cut

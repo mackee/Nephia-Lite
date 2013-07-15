@@ -12,4 +12,3 @@ run sub {
         { message => 'hello', q => $q }
         : { message => 'hello' };
 };
-
