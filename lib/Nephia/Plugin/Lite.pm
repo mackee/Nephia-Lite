@@ -7,23 +7,23 @@ use utf8;
 use Carp;
 use Encode;
 use Text::MicroTemplate;
-use Nephia::DSLModifier;
+use Nephia::Core ();
 
 our $VERSION = "0.04";
 our $APP_CLASS;
+our $ORIGIN_RUN;
 
-our @EXPORT = qw/build_template/;
+our @EXPORT = qw/run build_template/;
 
 sub load {
     my ($class, $app) = @_;
     $APP_CLASS = $app;
+    $ORIGIN_RUN = $APP_CLASS->can('run');
 }
 
-around 'run' => sub (&@) {
-    my $origin = pop;
-
+sub run (&@) {
     my $coderef = shift;
-    my $caller = caller(1);
+    my $caller = caller;
 
     {
         no strict 'refs';
@@ -33,7 +33,7 @@ around 'run' => sub (&@) {
             $renderer = ${$caller.'::RENDERER'} ||= _build($content) if $content;
         }
 
-        $APP_CLASS->can('path')->(
+        Nephia::Core::_path(
             '/' => sub {
                 my $req = $_[0];
                 my $param = $_[1];
@@ -56,10 +56,12 @@ around 'run' => sub (&@) {
 
                 return $res;
             },
+            undef,
+            $caller
         );
     }
 
-    my $app = $origin->($caller);
+    my $app = $ORIGIN_RUN->($caller);
 
     return $app;
 };

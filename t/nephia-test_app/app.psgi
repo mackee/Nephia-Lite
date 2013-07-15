@@ -3,7 +3,7 @@ use warnings;
 use utf8;
 use Nephia plugins => [qw/Lite/];
 
-run sub {
+run {
     my $req = req;
 
     my $q = $req->param('q');
