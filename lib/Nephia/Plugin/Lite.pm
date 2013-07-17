@@ -8,12 +8,13 @@ use Carp;
 use Encode;
 use Text::MicroTemplate;
 use Nephia::Core ();
+use Nephia::GlobalVars;
 
 our $VERSION = "0.04";
 our $APP_CLASS;
 our $ORIGIN_RUN;
 
-our @EXPORT = qw/run build_template/;
+our @EXPORT = qw/run/;
 
 sub load {
     my ($class, $app) = @_;
@@ -30,7 +31,7 @@ sub run (&@) {
         my $renderer = ${$caller.'RENDERER'};
         if ( !$renderer ) {
              my $content = _read_section_data($caller);
-            $renderer = ${$caller.'::RENDERER'} ||= _build($content) if $content;
+            $renderer = ${$caller.'::RENDERER'} ||= build_template($content) if $content;
         }
 
         Nephia::Core::_path(
@@ -46,7 +47,7 @@ sub run (&@) {
                 my $res = $coderef->(@_);
 
                 if ($renderer) {
-                    my $charset = $res->{charset} || $Nephia::Core::CHARSET;
+                    my $charset = $res->{charset} || Nephia::GlobalVars->get('charset');
                     $res = &{$caller.'::res'} (sub {
                         content_type( "text/html; charset=$charset" );
                         my $body = encode( $charset, $renderer->($res) );
@@ -80,10 +81,6 @@ sub _read_section_data {
         $content =~ s/__END__\n.*$/\n/s;
     }
     return $content;
-}
-
-sub _build {
-    $APP_CLASS->can('build_template')->(@_);
 }
 
 sub build_template {

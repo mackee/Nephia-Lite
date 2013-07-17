@@ -13,7 +13,7 @@ sub import {
                   ( $opts{plugins} )
     ;
 
-    push @plugins, qw/Lite Lite::Xslate/;
+    push @plugins, 'Lite::Xslate';
 
     my $caller = caller;
     Nephia::Core->export_to_level(1);

@@ -4,12 +4,13 @@ use strict;
 use warnings;
 use utf8;
 
+use parent 'Nephia::Plugin::Lite';
 use Carp;
-use Nephia::DSLModifier;
 use Text::Xslate;
 use Encode qw/decode_utf8/;
+our @EXPORT = qw/run/;
 
-around 'build_template' => sub {
+sub build_template {
     if (my $data = shift) {
         my $tx = Text::Xslate->new();
 
