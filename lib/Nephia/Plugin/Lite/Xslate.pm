@@ -8,7 +8,7 @@ use parent 'Nephia::Plugin::Lite';
 use Carp;
 use Text::Xslate;
 use Encode qw/decode_utf8/;
-our @EXPORT = qw/run/;
+our @EXPORT = qw/run build_template/;
 
 sub build_template {
     if (my $data = shift) {

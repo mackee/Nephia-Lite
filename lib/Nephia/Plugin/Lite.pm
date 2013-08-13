@@ -14,7 +14,7 @@ our $VERSION = "0.04";
 our $APP_CLASS;
 our $ORIGIN_RUN;
 
-our @EXPORT = qw/run/;
+our @EXPORT = qw/run build_template/;
 
 sub load {
     my ($class, $app) = @_;
@@ -30,8 +30,9 @@ sub run (&@) {
         no strict 'refs';
         my $renderer = ${$caller.'RENDERER'};
         if ( !$renderer ) {
-             my $content = _read_section_data($caller);
-            $renderer = ${$caller.'::RENDERER'} ||= build_template($content) if $content;
+            my $content = _read_section_data($caller);
+            $renderer = ${$caller.'::RENDERER'} ||=
+                $APP_CLASS->can('build_template')->($content) if $content;
         }
 
         Nephia::Core::_path(
