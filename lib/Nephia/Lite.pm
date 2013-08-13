@@ -6,7 +6,7 @@ use utf8;
 
 use parent 'Nephia';
 
-our $VERSION = "0.04";
+our $VERSION = "0.05";
 
 sub import {
     my ($class, %opts) = @_;

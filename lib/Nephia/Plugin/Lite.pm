@@ -10,7 +10,7 @@ use Text::MicroTemplate;
 use Nephia::Core ();
 use Nephia::GlobalVars;
 
-our $VERSION = "0.04";
+our $VERSION = "0.05";
 our $APP_CLASS;
 our $ORIGIN_RUN;
 

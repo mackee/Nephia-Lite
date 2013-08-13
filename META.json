@@ -4,7 +4,7 @@
       "macopy <macopy[attttttt]cpan.com>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Minilla/v0.5.6, CPAN::Meta::Converter version 2.132140",
+   "generated_by" : "Minilla/v0.5.3, CPAN::Meta::Converter version 2.131560",
    "license" : [
       "perl_5"
    ],
@@ -66,11 +66,11 @@
       "homepage" : "https://github.com/mackee/Nephia-Lite",
       "repository" : {
          "type" : "git",
-         "url" : "git://github.com/mackee/Nephia-Lite",
+         "url" : "git://github.com/mackee/Nephia-Lite.git",
          "web" : "https://github.com/mackee/Nephia-Lite"
       }
    },
-   "version" : "0.04",
+   "version" : "0.05",
    "x_contributors" : [
       "mackee <macopy123[attttt]gmai.com>"
    ]

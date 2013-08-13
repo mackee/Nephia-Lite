@@ -2,6 +2,10 @@ Revision history for Perl extension Nephia-Lite
 
 {{$NEXT}}
 
+0.05 2013-08-13T16:09:10Z
+    - pluginize
+    - support Text::Xslate in Nephia::Lite::Xslate
+
 0.04 2013-07-04T16:12:24Z
     - fix Nephia plugin support
 
