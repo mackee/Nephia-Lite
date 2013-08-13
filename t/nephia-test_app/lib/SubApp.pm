@@ -6,6 +6,5 @@ use Nephia::Lite;
 
 run {
     my $q = req->param('q');
-    return  { message => 'サブページのJSON', q => $q };
+    return { message => 'サブページのJSON', q => $q };
 };
-

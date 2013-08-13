@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 use utf8;
-use Nephia::Lite;
+use Nephia plugins => [qw/Lite/];
 
 run {
     my $req = req;
@@ -12,4 +12,3 @@ run {
         { message => 'hello', q => $q }
         : { message => 'hello' };
 };
-

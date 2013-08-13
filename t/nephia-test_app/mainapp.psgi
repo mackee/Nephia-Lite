@@ -5,7 +5,7 @@ use Nephia::Lite;
 use FindBin qw/$Bin/;
 use lib "$Bin/lib";
 
-path '/json' => 'SubApp';
+path '/json' => '+SubApp';
 
 run {
     return  { title => 'トップページ' };
